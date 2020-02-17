@@ -1,0 +1,7 @@
+/var/log/radius/radacct/*/detail /var/log/radius/*.log /var/log/radius/radutmp /var/log/radius/radwtmp {
+    monthly
+    rotate 4
+    nocreate
+    missingok
+    compress
+}
