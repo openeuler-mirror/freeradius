@@ -4,7 +4,7 @@
 
 Name:           freeradius
 Version:        3.0.15
-Release:        17
+Release:        18
 Summary:        Remote Authentication Dial-In User Service
 
 License:        GPLv2+ and LGPLv2+
@@ -433,6 +433,9 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/ldap
 
 %changelog
+* Mon Aug 31 2020 lingsheng <lingsheng@huawei.com> - 3.0.15-18
+- Fix tmpfile path to /run
+
 * Fri Feb 14 2020 yanzhihua <yanzhihua4@huawei.com> - 3.0.15-16
 - Package init
 
