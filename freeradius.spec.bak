@@ -3,19 +3,22 @@
 %define perl_version %(eval "`%{__perl} -V:version`"; echo $version)
 
 Name:           freeradius
-Version:        3.0.21
-Release:        1
+Version:        3.0.15
+Release:        18
 Summary:        Remote Authentication Dial-In User Service
 
 License:        GPLv2+ and LGPLv2+
 URL:            http://www.freeradius.org/
-Source0:        https://freeradius.org/ftp/pub/radius/freeradius-server-%{version}.tar.bz2
+Source0:        https://ftp.yz.yamagata-u.ac.jp/pub/network/freeradius/old/freeradius-server-3.0.15.tar.bz2
 Source1:        radiusd.service
 Source2:        freeradius-logrotate
 Source3:        freeradius-pam-conf
 Source4:        freeradius-tmpfiles.conf
 
 # patch for backport CVE
+Patch6000:      CVE-2019-11234_1.patch
+Patch6001:      CVE-2019-11234_2.patch
+Patch6002:      CVE-2019-10143.patch
 
 BuildRequires:  autoconf gdbm-devel openssl openssl-devel pam-devel zlib-devel net-snmp-devel
 BuildRequires:  net-snmp-utils readline-devel libpcap-devel systemd-units libtalloc-devel
@@ -74,14 +77,16 @@ BuildRequires:  perl-devel perl-generators perl(ExtUtils::Embed)
 %description perl
 FreeRADIUS plugin providing Perl support.
 
-%package -n python3-freeradius
-Summary:        Python 3 support of the FreeRADIUS package
-BuildRequires:  python3-devel
+%package -n python2-freeradius
+Summary:        Python support of the FreeRADIUS package
+BuildRequires:  python2-devel
 Requires:       %{name} = %{version}-%{release}
-%{?python_provide:%python_provide python3-freeradius}
+%{?python_provide:%python_provide python2-freeradius}
+Provides:       %{name}-python = %{version}-%{release}
+Obsoletes:      %{name}-python < %{version}-%{release}
 
-%description -n python3-freeradius
-FreeRADIUS plugin providing Python 3 support.
+%description -n python2-freeradius
+FreeRADIUS plugin providing Python support.
 
 %package mysql
 Summary:        MySQL support of the FreeRADIUS package
@@ -120,11 +125,6 @@ Help document of the FreeRADIUS package.
 %autosetup -n freeradius-server-%{version} -p1
 
 %build
-echo rlm_python3 >> src/modules/stable
-
-export PY3_LIB_DIR=%{_libdir}/"$(python3-config --configdir |sed 's#/usr/lib/##g')"
-export PY3_INC_DIR="$(python3 -c 'import sysconfig; print(sysconfig.get_config_var("INCLUDEPY"))')"
-
 %configure \
         --libdir=%{_libdir}/freeradius --disable-openssl-version-check \
         --with-docdir=%{docdir} --with-rlm-sql_postgresql-include-dir=/usr/include/pgsql \
@@ -136,9 +136,7 @@ export PY3_INC_DIR="$(python3 -c 'import sysconfig; print(sysconfig.get_config_v
         --without-rlm_eap_ikev2 --without-rlm_eap_tnc --without-rlm_sql_iodbc \
         --without-rlm_sql_firebird --without-rlm_sql_db2 --without-rlm_sql_oracle \
         --without-rlm_unbound --without-rlm_redis --without-rlm_rediswho \
-        --without-rlm_cache_memcached \
-        --with-rlm_python3 --with-rlm-python3-lib-dir=$PY3_LIB_DIR \
-        --with-rlm-python3-include-dir=$PY3_INC_DIR
+        --without-rlm_cache_memcached
 
 %make_build
 
@@ -227,9 +225,9 @@ exit 0
 %dir %attr(770,root,radiusd) /etc/raddb/certs
 %config(noreplace) /etc/raddb/certs/{Makefile,passwords.mk,xpextensions}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/certs/*.cnf
-%attr(750,root,radiusd) /etc/raddb/certs/{bootstrap}
+%attr(750,root,radiusd) /etc/raddb/certs/bootstrap
 /etc/raddb/certs/README
-%exclude /etc/raddb/certs/{*.crt,*.crl,*.csr,*.der,*.key,*.pem,*.p12}
+%exclude /etc/raddb/certs/{*.crt,*.csr,*.der,*.key,*.pem,*.p12}
 %exclude /etc/raddb/certs/{index.*,serial*,dh,random}
 
 # /etc/raddb/mods-config dir
@@ -255,7 +253,7 @@ exit 0
 %dir %attr(750,root,radiusd) /etc/raddb/sites-available
 /etc/raddb/sites-available/README
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/sites-available/{control-socket,decoupled-accounting}
-%attr(640,root,radiusd) %config(noreplace) /etc/raddb/sites-available/{robust-proxy-accounting,soh,coa,coa-relay,example}
+%attr(640,root,radiusd) %config(noreplace) /etc/raddb/sites-available/{robust-proxy-accounting,soh,coa,example}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/sites-available/{inner-tunnel,dhcp,check-eap-tls,status}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/sites-available/{dhcp.relay,virtual.example.com}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/sites-available/{originate-coa,vmps,default}
@@ -280,7 +278,7 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{inner-eap,ippool,linelog,logintime}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{mac2ip,mac2vlan,mschap,ntlm_auth}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{opendirectory,otp,pam,pap,passwd}
-%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{preprocess,python3,python,radutmp,realm}
+%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{preprocess,python,radutmp,realm}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{redis,rediswho,replicate,smbpasswd}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{smsotp,soh,sometimes,sql,sqlcounter}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{sqlippool,sradutmp,unix,unpack}
@@ -297,7 +295,7 @@ exit 0
 # /etc/raddb/policy.d dir
 %dir %attr(750,root,radiusd) /etc/raddb/policy.d
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/policy.d/{accounting,canonicalization,control,cui}
-%attr(640,root,radiusd) %config(noreplace) /etc/raddb/policy.d/{debug,dhcp,eap,filter,operator-name,rfc7542}
+%attr(640,root,radiusd) %config(noreplace) /etc/raddb/policy.d/{debug,dhcp,eap,filter,operator-name}
 %exclude /etc/raddb/policy.d/{abfab*,moonshot-targeted-ids}
 
 # /usr/sbin/binaries
@@ -350,6 +348,7 @@ exit 0
 
 %files utils
 /usr/bin/*
+%exclude /usr/bin/rbmonkey
 
 %files devel
 /usr/include/freeradius
@@ -364,10 +363,10 @@ exit 0
 %dir %attr(750,root,radiusd) /etc/raddb/mods-config/perl
 %attr(640,root,radiusd) /etc/raddb/mods-config/perl/example.pl
 
-%files -n python3-freeradius
-%dir %attr(750,root,radiusd) /etc/raddb/mods-config/python3
-%{_libdir}/freeradius/rlm_python3.so
-/etc/raddb/mods-config/python3/{example.py*,radiusd.py*}
+%files -n python2-freeradius
+%{_libdir}/freeradius/rlm_python.so
+%dir %attr(750,root,radiusd) /etc/raddb/mods-config/python
+/etc/raddb/mods-config/python/{example.py*,radiusd.py*}
 
 %files mysql
 %{_libdir}/freeradius/rlm_sql_mysql.so
@@ -379,18 +378,18 @@ exit 0
 %dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/cui/mysql
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/cui/mysql/*
 
-%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/ippool/{mysql,mongo,mssql}
+%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/ippool/mysql
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/ippool/mysql/*
-%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/ippool/mongo/*
-%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/ippool/mssql/*
 
 %dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/ippool-dhcp/mysql
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/ippool-dhcp/mysql/*
 
-%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/{mysql,mongo,postgresql}
-%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/main/mysql/*
-%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/main/mongo/*
-%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/main/postgresql/*
+%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/mysql
+%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/main/mysql/{setup.sql,queries.conf,schema.sql}
+
+%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/mysql/extras
+%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/mysql/extras/wimax
+%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/main/mysql/extras/wimax/*
 
 %dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/ndb
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/main/ndb/{setup.sql,schema.sql}
@@ -434,9 +433,6 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/ldap
 
 %changelog
-* Fri Oct 23 2020 huanghaitao <huanghaitao8@huawei.com> - 3.0.21-1
-- Update to 3.0.21 and switch python3 module support
-
 * Mon Aug 31 2020 lingsheng <lingsheng@huawei.com> - 3.0.15-18
 - Fix tmpfile path to /run
 
