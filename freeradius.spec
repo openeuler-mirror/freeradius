@@ -4,7 +4,7 @@
 
 Name:           freeradius
 Version:        3.0.15
-Release:        18
+Release:        19
 Summary:        Remote Authentication Dial-In User Service
 
 License:        GPLv2+ and LGPLv2+
@@ -25,6 +25,7 @@ BuildRequires:  net-snmp-utils readline-devel libpcap-devel systemd-units libtal
 BuildRequires:  pcre-devel unixODBC-devel json-c-devel libcurl-devel
 
 Requires:       openssl >= %{openssl_version}
+Requires:       %{name}-help = %{version}-%{release}
 Requires(pre):  shadow-utils glibc-common
 Requires(post): systemd-sysv systemd-units
 Requires(preun): systemd-units
@@ -433,6 +434,9 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/ldap
 
 %changelog
+* Mon Nov 09 2020 huanghaitao <huanghaitao8@huawei.com> - 3.0.15-19
+- Make help package requires by freeradius
+
  Aug 21 2020 yuboyun <yuboyun@huawei.com> - 3.0.15-18
 - Type: bugfix
 - ID: NA
