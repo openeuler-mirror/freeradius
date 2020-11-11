@@ -4,7 +4,7 @@
 
 Name:           freeradius
 Version:        3.0.21
-Release:        1
+Release:        2
 Summary:        Remote Authentication Dial-In User Service
 
 License:        GPLv2+ and LGPLv2+
@@ -434,6 +434,9 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/ldap
 
 %changelog
+* Wed Nov 11 2020 zhangtao <zhangtao221@huawei.com> - 3.0.21-2
+- delete the unused file
+
 * Fri Oct 23 2020 huanghaitao <huanghaitao8@huawei.com> - 3.0.21-1
 - Update to 3.0.21 and switch python3 module support
 
