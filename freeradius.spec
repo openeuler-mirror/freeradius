@@ -4,7 +4,7 @@
 
 Name:           freeradius
 Version:        3.0.21
-Release:        2
+Release:        3
 Summary:        Remote Authentication Dial-In User Service
 
 License:        GPLv2+ and LGPLv2+
@@ -15,6 +15,7 @@ Source2:        freeradius-logrotate
 Source3:        freeradius-pam-conf
 Source4:        freeradius-tmpfiles.conf
 
+Patch0000:      remove-unused-arguement.patch
 # patch for backport CVE
 
 BuildRequires:  autoconf gdbm-devel openssl openssl-devel pam-devel zlib-devel net-snmp-devel
@@ -434,6 +435,9 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/ldap
 
 %changelog
+* Fri Dec 25 2020 sunguoshuai <sunguoshuai@huawei.com> - 3.0.21-3
+- Remove unused arguement
+
 * Wed Nov 11 2020 zhangtao <zhangtao221@huawei.com> - 3.0.21-2
 - delete the unused file
 
