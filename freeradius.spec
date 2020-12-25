@@ -4,7 +4,7 @@
 
 Name:           freeradius
 Version:        3.0.15
-Release:        19
+Release:        20
 Summary:        Remote Authentication Dial-In User Service
 
 License:        GPLv2+ and LGPLv2+
@@ -19,6 +19,7 @@ Source4:        freeradius-tmpfiles.conf
 Patch6000:      CVE-2019-11234_1.patch
 Patch6001:      CVE-2019-11234_2.patch
 Patch6002:      CVE-2019-10143.patch
+Patch6003:      remove-unused-arguement.patch
 
 BuildRequires:  autoconf gdbm-devel openssl openssl-devel pam-devel zlib-devel net-snmp-devel
 BuildRequires:  net-snmp-utils readline-devel libpcap-devel systemd-units libtalloc-devel
@@ -434,10 +435,13 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/ldap
 
 %changelog
+* Fri Dec 25 2020 sunguoshuai <sunguoshuai@huawei.com> - 3.0.15-20
+- Remove unused arguement
+
 * Mon Nov 09 2020 huanghaitao <huanghaitao8@huawei.com> - 3.0.15-19
 - Make help package requires by freeradius
 
- Aug 21 2020 yuboyun <yuboyun@huawei.com> - 3.0.15-18
+* Fri Aug 21 2020 yuboyun <yuboyun@huawei.com> - 3.0.15-18
 - Type: bugfix
 - ID: NA
 - SUG: NA
@@ -445,5 +449,3 @@ exit 0
 
 * Fri Feb 14 2020 yanzhihua <yanzhihua4@huawei.com> - 3.0.15-16
 - Package init
-
-
