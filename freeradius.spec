@@ -4,7 +4,7 @@
 
 Name:           freeradius
 Version:        3.0.15
-Release:        21
+Release:        22
 Summary:        Remote Authentication Dial-In User Service
 
 License:        GPLv2+ and LGPLv2+
@@ -21,6 +21,7 @@ Patch6001:      CVE-2019-11234_2.patch
 Patch6002:      CVE-2019-10143.patch
 Patch6003:      remove-unused-arguement.patch
 Patch6004:      backport-CVE-2019-13456.patch
+Patch6005:      CVE-2019-17185.patch
 
 BuildRequires:  autoconf gdbm-devel openssl openssl-devel pam-devel zlib-devel net-snmp-devel
 BuildRequires:  net-snmp-utils readline-devel libpcap-devel systemd-units libtalloc-devel
@@ -436,6 +437,9 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/ldap
 
 %changelog
+* Mon Jan 18 2021 wangxiao <wangxiao65@huawei.com> - 3.0.15-22
+- fix CVE-2019-17185
+
 * Thu Jan 14 2021 xihaochen <xihaochen@huawei.com> - 3.0.15-21
 - Type: CVE
 - CVE: CVE-2019-13456 
