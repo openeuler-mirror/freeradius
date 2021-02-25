@@ -4,7 +4,7 @@
 
 Name:           freeradius
 Version:        3.0.21
-Release:        3
+Release:        4
 Summary:        Remote Authentication Dial-In User Service
 
 License:        GPLv2+ and LGPLv2+
@@ -164,6 +164,11 @@ install -m 0644 %{SOURCE4} %{buildroot}%{_tmpfilesdir}/radiusd.conf
 
 install -d $RPM_BUILD_ROOT%{_datadir}/snmp/mibs/
 install -m 644 mibs/*RADIUS*.mib $RPM_BUILD_ROOT%{_datadir}/snmp/mibs/
+
+rm -f $RPM_BUILD_ROOT/%{_sysconfdir}/raddb/mods-config/sql/ippool/mongo/queries.conf
+rm -f $RPM_BUILD_ROOT/%{_sysconfdir}/raddb/mods-config/sql/main/mongo/queries.conf
+rm -rf $RPM_BUILD_ROOT/etc/raddb/mods-config/sql/main/mssql
+rm -rf $RPM_BUILD_ROOT/etc/raddb/mods-config/sql/ippool/mssql
 
 install -D LICENSE $RPM_BUILD_ROOT/%{docdir}/LICENSE.gpl
 install -D src/lib/LICENSE $RPM_BUILD_ROOT/%{docdir}/LICENSE.lgpl
@@ -380,18 +385,18 @@ exit 0
 %dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/cui/mysql
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/cui/mysql/*
 
-%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/ippool/{mysql,mongo,mssql}
+%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/ippool/mysql
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/ippool/mysql/*
-%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/ippool/mongo/*
-%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/ippool/mssql/*
 
 %dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/ippool-dhcp/mysql
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/ippool-dhcp/mysql/*
 
-%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/{mysql,mongo,postgresql}
+%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/mysql
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/main/mysql/*
-%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/main/mongo/*
-%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/main/postgresql/*
+
+%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/mysql/extras
+%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/mysql/extras/wimax
+%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/main/mysql/extras/wimax/*
 
 %dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/ndb
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/main/ndb/{setup.sql,schema.sql}
@@ -408,7 +413,7 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/ippool/postgresql/*
 
 %dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/postgresql
-%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/main/postgresql/{setup.sql,queries.conf,schema.sql}
+%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/main/postgresql/*
 
 %dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/postgresql/extras
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/main/postgresql/extras/*
@@ -435,6 +440,9 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/ldap
 
 %changelog
+* Thu Feb 25 2021 lingsheng <lingsheng@huawei.com> - 3.0.21-4
+- Fix file conflicts in freeradius-mysql and freeradius-postgresql
+
 * Fri Dec 25 2020 sunguoshuai <sunguoshuai@huawei.com> - 3.0.21-3
 - Remove unused arguement
 
