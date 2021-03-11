@@ -4,7 +4,7 @@
 
 Name:           freeradius
 Version:        3.0.21
-Release:        4
+Release:        5
 Summary:        Remote Authentication Dial-In User Service
 
 License:        GPLv2+ and LGPLv2+
@@ -16,6 +16,7 @@ Source3:        freeradius-pam-conf
 Source4:        freeradius-tmpfiles.conf
 
 Patch0000:      remove-unused-arguement.patch
+Patch0001:      Fix-radeapclient-option-q.patch
 # patch for backport CVE
 
 BuildRequires:  autoconf gdbm-devel openssl openssl-devel pam-devel zlib-devel net-snmp-devel
@@ -440,6 +441,9 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/ldap
 
 %changelog
+* Thu Mar 11 2021 lingsheng <lingsheng@huawei.com> - 3.0.21-5
+* Fix radeapclient option -q
+
 * Thu Feb 25 2021 lingsheng <lingsheng@huawei.com> - 3.0.21-4
 - Fix file conflicts in freeradius-mysql and freeradius-postgresql
 
