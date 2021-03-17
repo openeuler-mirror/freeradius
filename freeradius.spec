@@ -4,7 +4,7 @@
 
 Name:           freeradius
 Version:        3.0.21
-Release:        5
+Release:        6
 Summary:        Remote Authentication Dial-In User Service
 
 License:        GPLv2+ and LGPLv2+
@@ -21,7 +21,7 @@ Patch0001:      Fix-radeapclient-option-q.patch
 
 BuildRequires:  autoconf gdbm-devel openssl openssl-devel pam-devel zlib-devel net-snmp-devel
 BuildRequires:  net-snmp-utils readline-devel libpcap-devel systemd-units libtalloc-devel
-BuildRequires:  pcre-devel unixODBC-devel json-c-devel libcurl-devel
+BuildRequires:  pcre-devel unixODBC-devel json-c-devel libcurl-devel chrpath
 
 Requires:       openssl >= %{openssl_version}
 Requires(pre):  shadow-utils glibc-common
@@ -179,6 +179,32 @@ for f in COPYRIGHT CREDITS INSTALL.rst README.rst VERSION; do
     cp $f $RPM_BUILD_ROOT/%{docdir}
 done
 
+chrpath -d $RPM_BUILD_ROOT%{_libdir}/freeradius/*.so
+chrpath -d $RPM_BUILD_ROOT%{_sbindir}/radiusd
+chrpath -d $RPM_BUILD_ROOT%{_sbindir}/radmin
+chrpath -d $RPM_BUILD_ROOT%{_bindir}/map_unit
+chrpath -d $RPM_BUILD_ROOT%{_bindir}/smbencrypt
+chrpath -d $RPM_BUILD_ROOT%{_bindir}/radwho
+chrpath -d $RPM_BUILD_ROOT%{_bindir}/radattr
+chrpath -d $RPM_BUILD_ROOT%{_bindir}/radclient
+chrpath -d $RPM_BUILD_ROOT%{_bindir}/dhcpclient
+chrpath -d $RPM_BUILD_ROOT%{_bindir}/radeapclient
+chrpath -d $RPM_BUILD_ROOT%{_bindir}/rlm_ippool_tool
+chrpath -d $RPM_BUILD_ROOT%{_bindir}/radsniff
+
+mkdir -p %{buildroot}/etc/ld.so.conf.d
+echo "%{_libdir}/freeradius" > %{buildroot}/etc/ld.so.conf.d/%{name}-%{_arch}.conf
+
+%post  utils
+/sbin/ldconfig
+%postun utils
+/sbin/ldconfig
+
+%post  perl
+/sbin/ldconfig
+%postun perl
+/sbin/ldconfig
+
 %pre
 getent group  radiusd >/dev/null || /usr/sbin/groupadd -r -g 95 radiusd > /dev/null 2>&1
 getent passwd radiusd >/dev/null || /usr/sbin/useradd  -r -g radiusd -u 95 -c "radiusd user" \
@@ -192,6 +218,7 @@ if [ $1 -eq 1 ]; then
   fi
 fi
 exit 0
+/sbin/ldconfig
 
 %preun
 %systemd_preun radiusd.service
@@ -203,6 +230,7 @@ if [ $1 -eq 0 ]; then
   getent group  radiusd >/dev/null && /usr/sbin/groupdel radiusd > /dev/null 2>&1
 fi
 exit 0
+/sbin/ldconfig
 
 /bin/systemctl try-restart radiusd.service >/dev/null 2>&1 || :
 
@@ -346,6 +374,8 @@ exit 0
 # rest
 %{_libdir}/freeradius/rlm_rest.so
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/rest
+#remove rpath
+%config(noreplace) /etc/ld.so.conf.d/*
 
 %files help
 %doc %{docdir}/
@@ -357,6 +387,7 @@ exit 0
 
 %files utils
 /usr/bin/*
+%config(noreplace) /etc/ld.so.conf.d/*
 
 %files devel
 /usr/include/freeradius
@@ -370,6 +401,7 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/perl
 %dir %attr(750,root,radiusd) /etc/raddb/mods-config/perl
 %attr(640,root,radiusd) /etc/raddb/mods-config/perl/example.pl
+%config(noreplace) /etc/ld.so.conf.d/*
 
 %files -n python3-freeradius
 %dir %attr(750,root,radiusd) /etc/raddb/mods-config/python3
@@ -441,6 +473,9 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/ldap
 
 %changelog
+* Wed Mar 17 2021 zhangtao <zhangtao221@huawei.com> - 3.0.21-6
+* remove rpath
+
 * Thu Mar 11 2021 lingsheng <lingsheng@huawei.com> - 3.0.21-5
 * Fix radeapclient option -q
 
