@@ -4,7 +4,7 @@
 
 Name:           freeradius
 Version:        3.0.21
-Release:        5
+Release:        6
 Summary:        Remote Authentication Dial-In User Service
 
 License:        GPLv2+ and LGPLv2+
@@ -17,6 +17,7 @@ Source4:        freeradius-tmpfiles.conf
 
 Patch0000:      remove-unused-arguement.patch
 Patch0001:      Fix-radeapclient-option-q.patch
+Patch0002:      Add-missing-backslash-that-precluded-server-from-starting.patch
 # patch for backport CVE
 
 BuildRequires:  autoconf gdbm-devel openssl openssl-devel pam-devel zlib-devel net-snmp-devel
@@ -441,6 +442,9 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/ldap
 
 %changelog
+* Mon Apr 26 2021 lingsheng <lingsheng@huawei.com> - 3.0.21-6
+- Add missing backslash that precluded server from starting
+
 * Thu Mar 11 2021 lingsheng <lingsheng@huawei.com> - 3.0.21-5
 * Fix radeapclient option -q
 
