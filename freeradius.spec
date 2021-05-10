@@ -4,7 +4,7 @@
 
 Name:           freeradius
 Version:        3.0.15
-Release:        22
+Release:        23
 Summary:        Remote Authentication Dial-In User Service
 
 License:        GPLv2+ and LGPLv2+
@@ -23,6 +23,7 @@ Patch6003:      remove-unused-arguement.patch
 Patch6004:      backport-CVE-2019-13456.patch
 Patch6005:      CVE-2019-17185.patch
 Patch6006:      Fix-radeapclient-option-q.patch
+Patch6007:      radsqlrelay-actually-do-something-in-debug-mode.patch
 
 BuildRequires:  autoconf gdbm-devel openssl openssl-devel pam-devel zlib-devel net-snmp-devel
 BuildRequires:  net-snmp-utils readline-devel libpcap-devel systemd-units libtalloc-devel
@@ -437,6 +438,9 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/ldap
 
 %changelog
+* Mon May 10 2021 lingsheng <lingsheng@huawei.com> - 3.0.15-23
+- Fix radsqlrelay debug mode
+
 * Thu Mar 11 2021 lingsheng <lingsheng@huawei.com> - 3.0.15-22
 - Fix radeapclient option -q
 
