@@ -4,7 +4,7 @@
 
 Name:           freeradius
 Version:        3.0.21
-Release:        6
+Release:        7
 Summary:        Remote Authentication Dial-In User Service
 
 License:        GPLv2+ and LGPLv2+
@@ -22,7 +22,7 @@ Patch0002:      Add-missing-backslash-that-precluded-server-from-starting.patch
 
 BuildRequires:  autoconf gdbm-devel openssl openssl-devel pam-devel zlib-devel net-snmp-devel
 BuildRequires:  net-snmp-utils readline-devel libpcap-devel systemd-units libtalloc-devel
-BuildRequires:  pcre-devel unixODBC-devel json-c-devel libcurl-devel
+BuildRequires:  pcre-devel unixODBC-devel json-c-devel libcurl-devel gcc
 
 Requires:       openssl >= %{openssl_version}
 Requires(pre):  shadow-utils glibc-common
@@ -442,6 +442,10 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/ldap
 
 %changelog
+* Wed Jun 2 2021 baizhonggui <baizhonggui@huawei.com> - 3.0.21-7
+- Fix building error: configure: error: no acceptable C compiler found in $PATH
+- Add gcc in BuildRequires
+
 * Mon Apr 26 2021 lingsheng <lingsheng@huawei.com> - 3.0.21-6
 - Add missing backslash that precluded server from starting
 
