@@ -4,7 +4,7 @@
 
 Name:           freeradius
 Version:        3.0.21
-Release:        7
+Release:        8
 Summary:        Remote Authentication Dial-In User Service
 
 License:        GPLv2+ and LGPLv2+
@@ -22,7 +22,7 @@ Patch0002:      Add-missing-backslash-that-precluded-server-from-starting.patch
 
 BuildRequires:  autoconf gdbm-devel openssl openssl-devel pam-devel zlib-devel net-snmp-devel
 BuildRequires:  net-snmp-utils readline-devel libpcap-devel systemd-units libtalloc-devel
-BuildRequires:  pcre-devel unixODBC-devel json-c-devel libcurl-devel gcc
+BuildRequires:  pcre-devel unixODBC-devel json-c-devel libcurl-devel gcc chrpath
 
 Requires:       openssl >= %{openssl_version}
 Requires(pre):  shadow-utils glibc-common
@@ -180,12 +180,23 @@ for f in COPYRIGHT CREDITS INSTALL.rst README.rst VERSION; do
     cp $f $RPM_BUILD_ROOT/%{docdir}
 done
 
+cd  $RPM_BUILD_ROOT/usr
+file `find -type f`| grep -w ELF | awk -F":" '{print $1}' | for i in `xargs`
+do
+  chrpath -d $i
+done
+cd -
+mkdir -p  $RPM_BUILD_ROOT/etc/ld.so.conf.d
+echo "%{_bindir}/%{name}" > $RPM_BUILD_ROOT/etc/ld.so.conf.d/%{name}-%{_arch}.conf
+echo "%{_libdir}/%{name}" >> $RPM_BUILD_ROOT/etc/ld.so.conf.d/%{name}-%{_arch}.conf
+
 %pre
 getent group  radiusd >/dev/null || /usr/sbin/groupadd -r -g 95 radiusd > /dev/null 2>&1
 getent passwd radiusd >/dev/null || /usr/sbin/useradd  -r -g radiusd -u 95 -c "radiusd user" \
     -d %{_localstatedir}/lib/radiusd -s /sbin/nologin radiusd > /dev/null 2>&1
 
 %post
+/sbin/ldconfig
 %systemd_post radiusd.service
 if [ $1 -eq 1 ]; then
   if [ ! -e /etc/raddb/certs/server.pem ]; then
@@ -198,6 +209,7 @@ exit 0
 %systemd_preun radiusd.service
 
 %postun
+/sbin/ldconfig
 %systemd_postun_with_restart radiusd.service
 if [ $1 -eq 0 ]; then
   getent passwd radiusd >/dev/null && /usr/sbin/userdel  radiusd > /dev/null 2>&1
@@ -348,6 +360,8 @@ exit 0
 %{_libdir}/freeradius/rlm_rest.so
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/rest
 
+%config(noreplace) /etc/ld.so.conf.d/*
+
 %files help
 %doc %{docdir}/
 # utils man pages
@@ -442,6 +456,9 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/ldap
 
 %changelog
+* Wed Sep 08 2021 chenchen <chen_aka_jan@163.com> - 3.0.21-8
+- del rpath from some binaries and bin
+
 * Wed Jun 2 2021 baizhonggui <baizhonggui@huawei.com> - 3.0.21-7
 - Fix building error: configure: error: no acceptable C compiler found in $PATH
 - Add gcc in BuildRequires
