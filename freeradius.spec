@@ -3,22 +3,17 @@
 %define perl_version %(eval "`%{__perl} -V:version`"; echo $version)
 
 Name:           freeradius
-Version:        3.0.21
-Release:        8
+Version:        3.0.25
+Release:        1
 Summary:        Remote Authentication Dial-In User Service
 
 License:        GPLv2+ and LGPLv2+
 URL:            http://www.freeradius.org/
-Source0:        https://freeradius.org/ftp/pub/radius/freeradius-server-%{version}.tar.bz2
+Source0:        https://freeradius.org/ftp/pub/radius/freeradius-server-%{version}.tar.gz
 Source1:        radiusd.service
 Source2:        freeradius-logrotate
 Source3:        freeradius-pam-conf
 Source4:        freeradius-tmpfiles.conf
-
-Patch0000:      remove-unused-arguement.patch
-Patch0001:      Fix-radeapclient-option-q.patch
-Patch0002:      Add-missing-backslash-that-precluded-server-from-starting.patch
-# patch for backport CVE
 
 BuildRequires:  autoconf gdbm-devel openssl openssl-devel pam-devel zlib-devel net-snmp-devel
 BuildRequires:  net-snmp-utils readline-devel libpcap-devel systemd-units libtalloc-devel
@@ -169,7 +164,6 @@ install -m 644 mibs/*RADIUS*.mib $RPM_BUILD_ROOT%{_datadir}/snmp/mibs/
 
 rm -f $RPM_BUILD_ROOT/%{_sysconfdir}/raddb/mods-config/sql/ippool/mongo/queries.conf
 rm -f $RPM_BUILD_ROOT/%{_sysconfdir}/raddb/mods-config/sql/main/mongo/queries.conf
-rm -rf $RPM_BUILD_ROOT/etc/raddb/mods-config/sql/main/mssql
 rm -rf $RPM_BUILD_ROOT/etc/raddb/mods-config/sql/ippool/mssql
 
 install -D LICENSE $RPM_BUILD_ROOT/%{docdir}/LICENSE.gpl
@@ -248,7 +242,7 @@ exit 0
 %config(noreplace) /etc/raddb/certs/{Makefile,passwords.mk,xpextensions}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/certs/*.cnf
 %attr(750,root,radiusd) /etc/raddb/certs/{bootstrap}
-/etc/raddb/certs/README
+/etc/raddb/certs/README.md
 %exclude /etc/raddb/certs/{*.crt,*.crl,*.csr,*.der,*.key,*.pem,*.p12}
 %exclude /etc/raddb/certs/{index.*,serial*,dh,random}
 
@@ -282,6 +276,7 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/sites-available/{proxy-inner-tunnel,dynamic-clients}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/sites-available/{copy-acct-to-home-server,buffered-sql}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/sites-available/{tls,channel_bindings,challenge}
+%attr(640,root,radiusd) %config(noreplace) /etc/raddb/sites-available/{resource-check,totp} 
 %exclude /etc/raddb/sites-available/abfab*
 
 # /etc/raddb/sites-enabled dir
@@ -305,6 +300,7 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{smsotp,soh,sometimes,sql,sqlcounter}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{sqlippool,sradutmp,unix,unpack}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{utf8,wimax,yubikey}
+%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{dhcp_files,dhcp_passwd,dhcp_sql,sql_map,totp} 
 %exclude /etc/raddb/mods-available/{unbound,couchbase,abfab*,moonshot-targeted-ids}
 
 # /etc/raddb/mods-enabled dir
@@ -312,7 +308,7 @@ exit 0
 %config(missingok) /etc/raddb/mods-enabled/{always,attr_filter,cache_eap,chap,date,detail,detail.log}
 %config(missingok) /etc/raddb/mods-enabled/{dhcp,digest,dynamic_clients,eap,echo,exec,expiration,expr}
 %config(missingok) /etc/raddb/mods-enabled/{files,linelog,logintime,mschap,ntlm_auth,pap,passwd,preprocess}
-%config(missingok) /etc/raddb/mods-enabled/{radutmp,realm,replicate,soh,sradutmp,unix,unpack,utf8}
+%config(missingok) /etc/raddb/mods-enabled/{radutmp,realm,replicate,soh,sradutmp,unix,unpack,utf8,totp}
 
 # /etc/raddb/policy.d dir
 %dir %attr(750,root,radiusd) /etc/raddb/policy.d
@@ -348,6 +344,7 @@ exit 0
 %{_libdir}/freeradius/{rlm_preprocess.so,rlm_radutmp.so,rlm_realm.so,rlm_replicate.so,rlm_soh.so}
 %{_libdir}/freeradius/{rlm_sometimes.so,rlm_sql.so,rlm_sqlcounter.so,rlm_sqlippool.so,rlm_sql_null.so}
 %{_libdir}/freeradius/{rlm_unix.so,rlm_unpack.so,rlm_utf8.so,rlm_wimax.so,rlm_yubikey.so}
+%{_libdir}/freeradius/{rlm_sql_map.so,rlm_totp.so}
 %exclude %{_libdir}/freeradius/{*.a,*.la,rlm_test.so}
 
 # MIB files
@@ -399,7 +396,32 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/counter/mysql/*
 
 %dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/cui/mysql
-%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/cui/mysql/*
+%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/cui/mysql/* 
+	
+%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/dhcp/mssql	
+%attr(640,root,radiusd) /etc/raddb/mods-config/sql/dhcp/mssql/queries.conf	
+%attr(640,root,radiusd) /etc/raddb/mods-config/sql/dhcp/mssql/schema.sql
+		
+%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/dhcp/mysql	
+%attr(640,root,radiusd) /etc/raddb/mods-config/sql/dhcp/mysql/queries.conf	
+%attr(640,root,radiusd) /etc/raddb/mods-config/sql/dhcp/mysql/schema.sql	
+%attr(640,root,radiusd) /etc/raddb/mods-config/sql/dhcp/mysql/setup.sql	 
+	
+%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/dhcp/oracle	
+%attr(640,root,radiusd) /etc/raddb/mods-config/sql/dhcp/oracle/queries.conf	
+%attr(640,root,radiusd) /etc/raddb/mods-config/sql/dhcp/oracle/schema.sql 
+	
+%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/dhcp/postgresql	
+%attr(640,root,radiusd) /etc/raddb/mods-config/sql/dhcp/postgresql/queries.conf	
+%attr(640,root,radiusd) /etc/raddb/mods-config/sql/dhcp/postgresql/schema.sql	
+%attr(640,root,radiusd) /etc/raddb/mods-config/sql/dhcp/postgresql/setup.sql	
+ 
+	
+%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/dhcp/sqlite
+	
+%attr(640,root,radiusd) /etc/raddb/mods-config/sql/dhcp/sqlite/queries.conf
+	
+%attr(640,root,radiusd) /etc/raddb/mods-config/sql/dhcp/sqlite/schema.sql
 
 %dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/ippool/mysql
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/ippool/mysql/*
@@ -407,11 +429,20 @@ exit 0
 %dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/ippool-dhcp/mysql
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/ippool-dhcp/mysql/*
 
+%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/ippool-dhcp/mssql	
+%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/ippool-dhcp/mssql/procedure.sql	
+%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/ippool-dhcp/mssql/queries.conf	
+%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/ippool-dhcp/mssql/schema.sql 
+	
+%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/ippool-dhcp/postgresql	
+%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/ippool-dhcp/postgresql/procedure.sql	
+%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/ippool-dhcp/postgresql/queries.conf	
+%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/ippool-dhcp/postgresql/schema.sql
+
 %dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/mysql
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/main/mysql/*
 
-%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/mysql/extras
-%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/mysql/extras/wimax
+%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/mysql/extras	
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/main/mysql/extras/wimax/*
 
 %dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/ndb
@@ -431,8 +462,10 @@ exit 0
 %dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/postgresql
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/main/postgresql/*
 
-%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/postgresql/extras
+	
+%dir %attr(750,root,radiusd) /etc/raddb/mods-config/sql/main/postgresql/extras	
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-config/sql/main/postgresql/extras/*
+%{_libdir}/freeradius/rlm_sql_postgresql.so 
 
 %files sqlite
 %{_libdir}/freeradius/rlm_sql_sqlite.so
@@ -456,6 +489,9 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/ldap
 
 %changelog
+* Thu Dec 30 2021 baizhonggui <baizhonggui@huawei.com> - 3.0.25-1
+- update to 3.0.25
+
 * Wed Sep 08 2021 chenchen <chen_aka_jan@163.com> - 3.0.21-8
 - del rpath from some binaries and bin
 
