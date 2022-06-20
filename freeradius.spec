@@ -4,7 +4,7 @@
 
 Name:           freeradius
 Version:        3.0.21
-Release:        8
+Release:        9
 Summary:        Remote Authentication Dial-In User Service
 
 License:        GPLv2+ and LGPLv2+
@@ -22,7 +22,7 @@ Patch0002:      Add-missing-backslash-that-precluded-server-from-starting.patch
 
 BuildRequires:  autoconf gdbm-devel openssl openssl-devel pam-devel zlib-devel net-snmp-devel
 BuildRequires:  net-snmp-utils readline-devel libpcap-devel systemd-units libtalloc-devel
-BuildRequires:  pcre-devel unixODBC-devel json-c-devel libcurl-devel gcc
+BuildRequires:  pcre-devel unixODBC-devel json-c-devel libcurl-devel gcc chrpath
 
 Requires:       openssl >= %{openssl_version}
 Requires(pre):  shadow-utils glibc-common
@@ -456,6 +456,9 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/ldap
 
 %changelog
+* Fri Oct 29 2021 Chenxi Mao <chenxi.mao@suse.com> - 3.0.21-9
+- Add chrpath to BuildRequires
+
 * Wed Sep 08 2021 chenchen <chen_aka_jan@163.com> - 3.0.21-8
 - del rpath from some binaries and bin
 
