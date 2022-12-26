@@ -4,7 +4,7 @@
 
 Name:           freeradius
 Version:        3.0.25
-Release:        1
+Release:        2
 Summary:        Remote Authentication Dial-In User Service
 
 License:        GPLv2+ and LGPLv2+
@@ -14,6 +14,10 @@ Source1:        radiusd.service
 Source2:        freeradius-logrotate
 Source3:        freeradius-pam-conf
 Source4:        freeradius-tmpfiles.conf
+patch0000:      CVE-2022-41859-pre.patch
+patch0001:      CVE-2022-41859.patch
+patch0002:      CVE-2022-41860.patch     
+patch0003:      CVE-2022-41861.patch
 
 BuildRequires:  autoconf gdbm-devel openssl openssl-devel pam-devel zlib-devel net-snmp-devel
 BuildRequires:  net-snmp-utils readline-devel libpcap-devel systemd-units libtalloc-devel
@@ -489,6 +493,9 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/ldap
 
 %changelog
+* Wed Dec 21 2022 jiangpeng <jiangpeng01@ncti-gba.cn> - 3.0.25-2
+- Fix CVE-2022-41859 and CVE-2022-41860 and CVE-2022-41861
+
 * Thu Dec 30 2021 baizhonggui <baizhonggui@huawei.com> - 3.0.25-1
 - update to 3.0.25
 
