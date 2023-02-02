@@ -3,8 +3,8 @@
 %define perl_version %(eval "`%{__perl} -V:version`"; echo $version)
 
 Name:           freeradius
-Version:        3.0.25
-Release:        2
+Version:        3.0.26
+Release:        1
 Summary:        Remote Authentication Dial-In User Service
 
 License:        GPLv2+ and LGPLv2+
@@ -14,10 +14,6 @@ Source1:        radiusd.service
 Source2:        freeradius-logrotate
 Source3:        freeradius-pam-conf
 Source4:        freeradius-tmpfiles.conf
-patch0000:      CVE-2022-41859-pre.patch
-patch0001:      CVE-2022-41859.patch
-patch0002:      CVE-2022-41860.patch     
-patch0003:      CVE-2022-41861.patch
 
 BuildRequires:  autoconf gdbm-devel openssl openssl-devel pam-devel zlib-devel net-snmp-devel
 BuildRequires:  net-snmp-utils readline-devel libpcap-devel systemd-units libtalloc-devel
@@ -276,6 +272,7 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/sites-available/{robust-proxy-accounting,soh,coa,coa-relay,example}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/sites-available/{inner-tunnel,dhcp,check-eap-tls,status}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/sites-available/{dhcp.relay,virtual.example.com}
+%attr(640,root,radiusd) %config(noreplace) /etc/raddb/sites-available/google-ldap-auth
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/sites-available/{originate-coa,vmps,default}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/sites-available/{proxy-inner-tunnel,dynamic-clients}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/sites-available/{copy-acct-to-home-server,buffered-sql}
@@ -290,13 +287,14 @@ exit 0
 # /etc/raddb/mods-available/ dir
 %dir %attr(750,root,radiusd) /etc/raddb/mods-available
 /etc/raddb/mods-available/README.rst
-%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{always,attr_filter,cache}
+%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{always,attr_filter,cache,cache_auth}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{cache_eap,chap,counter,cui,date}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{detail,detail.example.com,detail.log}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{dhcp,dhcp_sqlippool,digest}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{dynamic_clients,eap,echo,etc_group}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{exec,expiration,expr,files,idn}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{inner-eap,ippool,linelog,logintime}
+%attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/ldap_google
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{mac2ip,mac2vlan,mschap,ntlm_auth}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{opendirectory,otp,pam,pap,passwd}
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/{preprocess,python3,python,radutmp,realm}
@@ -493,6 +491,9 @@ exit 0
 %attr(640,root,radiusd) %config(noreplace) /etc/raddb/mods-available/ldap
 
 %changelog
+* Thu Feb 2 2023 liyanan <liyanan32@h-partners.com> - 3.0.26-1
+- Update to 3.0.26
+
 * Wed Dec 21 2022 jiangpeng <jiangpeng01@ncti-gba.cn> - 3.0.25-2
 - Fix CVE-2022-41859 and CVE-2022-41860 and CVE-2022-41861
 
